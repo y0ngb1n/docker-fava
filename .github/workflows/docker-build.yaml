@@ -1,0 +1,70 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+env:
+  REPOSITORY_NAME: ${{ github.repository }}
+  GHCR_IMAGE_NAME: ghcr.io/y0ngb1n/fava
+  DOCKERHUB_IMAGE_NAME: y0ngb1n/fava
+
+jobs:
+  build:
+    name: Build and Push Docker image
+    if: github.repository == 'y0ngb1n/docker-fava'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set short git commit SHA
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
+      - name: Set fava version
+        run: |
+          current_version=v`sed -nr 's/fava==(.*)/\1/p' ./requirements.txt`
+          echo "FAVA_VERSION=$(echo $current_version | sed 's/v//g')" >> $GITHUB_ENV
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            ${{ env.GHCR_IMAGE_NAME }}:latest
+            ${{ env.GHCR_IMAGE_NAME }}:${{ env.FAVA_VERSION }}
+            ${{ env.GHCR_IMAGE_NAME }}:${{ env.FAVA_VERSION }}-${{ env.SHORT_SHA }}
+            ${{ env.DOCKERHUB_IMAGE_NAME }}:latest
+            ${{ env.DOCKERHUB_IMAGE_NAME }}:${{ env.FAVA_VERSION }}
+            ${{ env.DOCKERHUB_IMAGE_NAME }}:${{ env.FAVA_VERSION }}-${{ env.SHORT_SHA }}
