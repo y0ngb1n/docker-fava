@@ -92,39 +92,25 @@ jobs:
           RELEASE_TAG=${FAVA_VERSION}-${SHORT_SHA}
           echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
 
-      - name: 🔌 Plugins
-        run: |
-          echo "PLUGINS<<EOF" >> $GITHUB_ENV
-          cat ./requirements.txt >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: 🐳 Images
-        run: |
-          echo "IMAGES<<EOF" >> $GITHUB_ENV
-          echo "${{ env.GHCR_IMAGE_NAME }}:latest" >> $GITHUB_ENV
-          echo "${{ env.GHCR_IMAGE_NAME }}:${{ env.FAVA_VERSION }}" >> $GITHUB_ENV
-          echo "${{ env.GHCR_IMAGE_NAME }}:${{ env.FAVA_VERSION }}-${{ env.SHORT_SHA }}" >> $GITHUB_ENV
-          echo "" >> $GITHUB_ENV
-          echo "# OR" >> $GITHUB_ENV
-          echo "" >> $GITHUB_ENV
-          echo "${{ env.DOCKERHUB_IMAGE_NAME }}:latest
-          echo "${{ env.DOCKERHUB_IMAGE_NAME }}:${{ env.FAVA_VERSION }}" >> $GITHUB_ENV
-          echo "${{ env.DOCKERHUB_IMAGE_NAME }}:${{ env.FAVA_VERSION }}-${{ env.SHORT_SHA }}" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-          echo "DEFAULT_IMAGE=${{ env.GHCR_IMAGE_NAME }}:latest" >> $GITHUB_ENV
-
       - name: 📝 Generate release.md
         run: |
           cat <<EOF > release.md
           ## 🔌 Plugins
           \`\`\`
-          $PLUGINS
+          $(cat ./requirements.txt)
           \`\`\`
 
           ## 🐳 Container Images
           \`\`\`
-          $IMAGES
+          ${GHCR_IMAGE_NAME}:latest
+          ${GHCR_IMAGE_NAME}:${FAVA_VERSION}
+          ${GHCR_IMAGE_NAME}:${FAVA_VERSION}-${SHORT_SHA}
+          
+          # OR
+          
+          ${DOCKERHUB_IMAGE_NAME}:latest
+          ${DOCKERHUB_IMAGE_NAME}:${FAVA_VERSION}
+          ${DOCKERHUB_IMAGE_NAME}:${FAVA_VERSION}-${SHORT_SHA}
           \`\`\`
 
           ## ⚙️ Runtime Env
@@ -141,7 +127,7 @@ jobs:
             -p 5000:5000 \
             -v \$(pwd):/ledger \
             -e BEANCOUNT_FILE=/ledger/main.beancount \
-            ghcr.io/y0ngb1n/fava:latest
+            ${GHCR_IMAGE_NAME}:latest
           \`\`\`
 
           ## 📝 Notes
