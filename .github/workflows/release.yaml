@@ -11,7 +11,7 @@ on:
 env:
   REPOSITORY_NAME: ${{ github.repository }}
   GHCR_IMAGE_NAME: ghcr.io/y0ngb1n/fava
-  DOCKERHUB_IMAGE_NAME: y0ngb1n/fava
+  DOCKERHUB_IMAGE_NAME: docker.io/y0ngb1n/fava
 
 jobs:
   docker-publish:
@@ -123,10 +123,10 @@ jobs:
           ## 🚀 Quick Start
 
           \`\`\`bash
-          docker run -d \
-            -p 5000:5000 \
-            -v \$(pwd):/ledger \
-            -e BEANCOUNT_FILE=/ledger/main.beancount \
+          docker run -d \\
+            -p 5000:5000 \\
+            -v \$(pwd):/ledger \\
+            -e BEANCOUNT_FILE=/ledger/main.beancount \\
             ${GHCR_IMAGE_NAME}:latest
           \`\`\`
 
