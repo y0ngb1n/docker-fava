@@ -1,4 +1,4 @@
-fava==1.30.13
+fava==1.30.14
 fava-dashboards==2.0.0
 fava-investor==1.0.1
 fava-portfolio-returns==2.6.0
