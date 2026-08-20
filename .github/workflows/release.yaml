@@ -95,6 +95,23 @@ jobs:
       - name: 📝 Generate release.md
         run: |
           cat <<EOF > release.md
+          ## 🚀 Quick Start
+
+          \`\`\`bash
+          docker run -d \\
+            -p 5000:5000 \\
+            -v \$(pwd):/ledger \\
+            -e BEANCOUNT_FILE=/ledger/main.beancount \\
+            ${GHCR_IMAGE_NAME}:latest
+          \`\`\`
+
+          ## ⚙️ Runtime Env
+          \`\`\`
+          FAVA_HOST=0.0.0.0
+          FAVA_PREFIX=/
+          BEANCOUNT_FILE=/ledger/main.beancount
+          \`\`\`
+
           ## 🔌 Plugins
           \`\`\`
           $(cat ./requirements.txt)
@@ -111,23 +128,6 @@ jobs:
           ${DOCKERHUB_IMAGE_NAME}:latest
           ${DOCKERHUB_IMAGE_NAME}:${FAVA_VERSION}
           ${DOCKERHUB_IMAGE_NAME}:${FAVA_VERSION}-${SHORT_SHA}
-          \`\`\`
-
-          ## ⚙️ Runtime Env
-          \`\`\`
-          FAVA_HOST=0.0.0.0
-          FAVA_PREFIX=/
-          BEANCOUNT_FILE=/ledger/main.beancount
-          \`\`\`
-
-          ## 🚀 Quick Start
-
-          \`\`\`bash
-          docker run -d \\
-            -p 5000:5000 \\
-            -v \$(pwd):/ledger \\
-            -e BEANCOUNT_FILE=/ledger/main.beancount \\
-            ${GHCR_IMAGE_NAME}:latest
           \`\`\`
 
           ## 📝 Notes
